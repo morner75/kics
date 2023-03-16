@@ -4,7 +4,13 @@
 \alias{update_LTFR}
 \title{Update Long Term Forward Rate}
 \usage{
-update_LTFR(data, update_year, last_LTFR, BOK_target = 2)
+update_LTFR(
+  data,
+  update_year,
+  last_LTFR,
+  BOK_target = 2,
+  var_names = c(year = "year", rfr = "INT_CD91_Y", inflation = "CPI_YG")
+)
 }
 \arguments{
 \item{data}{A data.frame which contains yearly CD rates(INT_CD91_Y) and CPI(CPI_YG) series.}
@@ -14,6 +20,8 @@ update_LTFR(data, update_year, last_LTFR, BOK_target = 2)
 \item{last_LTFR}{A numeric 마지막 장기선도금리.}
 
 \item{BOK_target}{A numeric 한국은행 물가안정목표.}
+
+\item{var_names}{A characteㄱ vector of length 3, 연도, 무위험지표금리, 인플레이션율 변수명을 지정하는 벡터}
 }
 \value{
 A numeric 다음년도 장기선도금리.
@@ -22,5 +30,5 @@ A numeric 다음년도 장기선도금리.
 장기선도금리 업데이트
 }
 \examples{
-추후에...
+print("추후에...")
 }

@@ -73,7 +73,7 @@ update_LTFR <- function(data,update_year,last_LTFR,BOK_target=2,
 #' @export
 nom2eff <- function(int,conversion=2,convert=c("effective","nominal")) {
 
-  if(int>1) stop("interest rates must be inputed in a decimal not in a percentage")
+  if(any(int>1)) stop("interest rates must be inputed in a decimal not in a percentage")
   freq <- conversion
   convert <- match.arg(arg=convert, choices=c("effective","nominal"))
   switch(convert,
@@ -96,7 +96,7 @@ nom2eff <- function(int,conversion=2,convert=c("effective","nominal")) {
 #' @export
 cont2disc <- function(int,convert=c("discrete","continuous")) {
 
-  if(int>1) stop("interest rates must be inputed in a decimal not in a percentage")
+  if(any(int>1)) stop("interest rates must be inputed in a decimal not in a percentage")
 
   convert <- match.arg(arg=convert, choices=c("discrete","continuous"))
   switch(convert,
@@ -142,32 +142,4 @@ YTM2Price <- function(Tenor, YTM, Freq){
   return(sum(CF * DF))
 }
 
-
-#' WilstonW
-#'
-#' Calculates the Wilson's function with given parameters
-#'
-#' @param u A vector of time values, observed durations to maturity
-#' @param v A vector of maturity values
-#' @param a A numeric value, speed of convergence
-#' @param ufr A numeric value, ultimate forward intensity(continuous rate)
-#'
-#' @return Returns a matrix of Wilston's function values
-#'
-#' @examples
-#' WilsonW(u = c(1, 2, 3), v = c(2, 3, 4), a = 0.05, ufr = 0.03)
-#'
-#' @export
-WilsonW<-function(u,v,a,ufr) {
-
-  W <- matrix(NA,length(u),length(v))
-
-  for (i in 1:length(u)) {
-    for (k in 1:length(v)) {
-      W[i,k] <- exp(-ufr*(u[i]+v[k]))*(a*min(u[i],v[k])
-                                       -0.5*exp(-a*max(u[i],v[k]))*(exp(a*min(u[i],v[k]))
-                                                                    -exp(-a*min(u[i],v[k]))))
-    }}
-  return(W)
-}
 

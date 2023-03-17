@@ -21,7 +21,3 @@ Returns a matrix of Wilston's function values
 \description{
 Calculates the Wilson's W function with given parameters
 }
-\examples{
-WilsonW(u = c(1, 2, 3), v = c(2, 3, 4), a = 0.05, ufr = 0.03)
-
-}

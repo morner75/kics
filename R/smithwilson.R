@@ -62,16 +62,15 @@ ytm2price0 <- function (tenor, ytm, freq) {
   sum(CF * DF)
 }
 
-#' Yield to maturity to market price
+#' Calculate market Bond Price from Yield-to-Maturity
 #'
-#' Computes the price of a bond given its tenor, yield to maturity, and coupon frequency.
+#' This function calculates the price of a bond with a given tenor, yield-to-maturity, and coupon frequency.
 #'
-#' @param tenor length of time until maturity of the bond, in years.
-#' @param ytm the yield to maturity of the bond.
-#' @param freq the number of coupon payments per year.
+#' @param tenor The number of years remaining until the bond reaches maturity.
+#' @param ytm The yield-to-maturity of the bond.
+#' @param freq The frequency of coupon payments per year. If Freq=0, this indicates a zero-coupon bond.
 #'
 #' @return The price of the bond.
-#'
 #'
 #' @export
 ytm2price<- function (tenor, ytm, freq) {
@@ -103,13 +102,10 @@ ytm2price<- function (tenor, ytm, freq) {
 #'
 #' @return Returns a matrix of Wilston's function values
 #'
-#' @examples
-#' WilsonW(u = c(1, 2, 3), v = c(2, 3, 4), a = 0.05, ufr = 0.03)
-#'
 #' @export
 wilsonW <- function(u,v,a,ufr) {
 
-  W <- diag(exp(-ufr*u))%*%WilsonH(u,v,a)%*%diag(exp(-ufr*v))
+  W <- diag(exp(-ufr*u))%*%wilsonH(u,v,a)%*%diag(exp(-ufr*v))
 
   return(W)
 }
@@ -136,6 +132,32 @@ wilsonH <- function(u,v,a) {
       H[i,k] <- a*min(u[i],v[k])+(exp(-a*(u[i]+v[k]))-exp(-a*abs(u[i]-v[k])))/2
     }}
   return(H)
+}
+
+#' Wilson G Function
+#'
+#' Computes the values of the Wilson G function given u and v.
+#'
+#' @param u A vector of numeric values.
+#' @param v A vector of numeric values.
+#' @param a A numeric value for parameter a.
+#' @return Returns a matrix of numeric values representing the Wilson G function with dimensions length(u) by length(v).
+
+#' @export
+wilsonG <- function(u,v,a){
+
+  G <- matrix(NA,length(u),length(v))
+
+  for (i in 1:length(u)) {
+    for (k in 1:length(v)) {
+      if(u[i]>=v[k]){
+        G[i,k] <- a - a*exp(-a*u[i])*cosh(a*v[k])
+      }else{
+        G[i,k] <- a*exp(-a*v[k])*sinh(a*u[i])
+      }
+    }}
+  return(G)
+
 }
 
 

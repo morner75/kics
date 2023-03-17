@@ -2,20 +2,20 @@
 % Please edit documentation in R/smithwilson.R
 \name{ytm2price}
 \alias{ytm2price}
-\title{Yield to maturity to market price}
+\title{Calculate market Bond Price from Yield-to-Maturity}
 \usage{
 ytm2price(tenor, ytm, freq)
 }
 \arguments{
-\item{tenor}{length of time until maturity of the bond, in years.}
+\item{tenor}{The number of years remaining until the bond reaches maturity.}
 
-\item{ytm}{the yield to maturity of the bond.}
+\item{ytm}{The yield-to-maturity of the bond.}
 
-\item{freq}{the number of coupon payments per year.}
+\item{freq}{The frequency of coupon payments per year. If Freq=0, this indicates a zero-coupon bond.}
 }
 \value{
 The price of the bond.
 }
 \description{
-Computes the price of a bond given its tenor, yield to maturity, and coupon frequency.
+This function calculates the price of a bond with a given tenor, yield-to-maturity, and coupon frequency.
 }

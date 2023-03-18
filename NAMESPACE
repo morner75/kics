@@ -2,7 +2,10 @@
 
 export("%>%")
 export(cash_flow_mat)
+export(compute_forwards)
+export(compute_spots_sw)
 export(cont2disc)
+export(discount_pricing)
 export(expSmooth)
 export(nom2eff)
 export(update_LTFR)

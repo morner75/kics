@@ -11,7 +11,7 @@ ytm2price(tenor, ytm, freq)
 
 \item{ytm}{The yield-to-maturity of the bond.}
 
-\item{freq}{The frequency of coupon payments per year. If Freq=0, this indicates a zero-coupon bond.}
+\item{freq}{The frequency of coupon payments per year. If freq=0, this indicates a zero-coupon bond.}
 }
 \value{
 The price of the bond.

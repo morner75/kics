@@ -68,7 +68,7 @@ ytm2price0 <- function (tenor, ytm, freq) {
 #'
 #' @param tenor The number of years remaining until the bond reaches maturity.
 #' @param ytm The yield-to-maturity of the bond.
-#' @param freq The frequency of coupon payments per year. If Freq=0, this indicates a zero-coupon bond.
+#' @param freq The frequency of coupon payments per year. If freq=0, this indicates a zero-coupon bond.
 #'
 #' @return The price of the bond.
 #'
@@ -142,17 +142,16 @@ wilsonH <- function(u,v,a) {
 #' @param v A vector of numeric values.
 #' @param a A numeric value for parameter a.
 #' @return Returns a matrix of numeric values representing the Wilson G function with dimensions length(u) by length(v).
-
 #' @export
 wilsonG <- function(u,v,a){
 
-  G <- matrix(NA,length(u),length(v))
+  G <- matrix(NA,nrow=length(u),ncol=length(v))
 
   for (i in 1:length(u)) {
     for (k in 1:length(v)) {
-      if(u[i]>=v[k]){
+      if(v[k]<=u[i]){
         G[i,k] <- a - a*exp(-a*u[i])*cosh(a*v[k])
-      }else{
+      }else if(u[i]<=v[k]){
         G[i,k] <- a*exp(-a*v[k])*sinh(a*u[i])
       }
     }}
@@ -161,4 +160,107 @@ wilsonG <- function(u,v,a){
 }
 
 
+#' Discount pricing function with Wilson Function and UFR
+#'
+#' This function calculates the discounted prices for a given vector of tenors and yields,
+#' taking into account the Ultimate Forward Rate (UFR) and the Wilson function.
+#'
+#' @param v a vector of tenors for which to calculate the discounted prices.
+#' @param tenor a vector of the number of years remaining until the bond reaches maturity.
+#' @param ytm a vector of yields to maturity of observed tenors.
+#' @param a a parameter for the Wilson function.
+#' @param ufr the Ultimate Forward Rate.
+#' @param freq The frequency of coupon payments per year. If freq=0, this indicates a zero-coupon bond.
+#' @return a vector of discounted prices for the given tenors.
+#' @export
+discount_pricing <- function(v,tenor,ytm,a,ufr,freq=2){
+
+  # market value recalculated from ytm
+  p <- ytm2price(tenor,ytm, freq)
+
+  # cash flows from observed tenors and ytms
+  Cmat <- cash_flow_mat(tenor,ytm,freq)
+
+  # durations which produce a cash flow
+  u <- as.numeric(rownames(Cmat))
+
+  # discount factor with ufr
+  d <- exp(-ufr*u)
+
+  # ufr-discounted cash flows
+  Q <- diag(as.vector(d))%*%Cmat
+
+  # solution for auxiliary vector b from equation
+  b <- solve(t(Q)%*%wilsonH(u,u,a)%*%Q)%*%(p-colSums(Q))
+
+  as.vector(exp(-ufr*v)+exp(-ufr*v)*wilsonH(v,u,a)%*%Q%*%b)
+}
+
+#' Discrete spot rates from Smith-Wilson methods
+#'
+#' This function calculates the spot rates for a given vector of tenors and yields,
+#' taking into account the Ultimate Forward Rate (UFR) and the Wilson function.
+#'
+#' @param v a vector of tenors for which to calculate the discounted prices.
+#' @param tenor a vector of the number of years remaining until the bond reaches maturity.
+#' @param ytm a vector of yields to maturity of observed tenors.
+#' @param a a parameter for the Wilson function.
+#' @param ufr the Ultimate Forward Rate.
+#' @param freq The frequency of coupon payments per year. If freq=0, this indicates a zero-coupon bond.
+#' @return a vector of discounted prices for the given tenors.
+#' @export
+compute_spots_sw <- function(v,tenor,ytm,a,ufr,freq){
+
+  intensity <- vector(mode="numeric",length=length(v))
+
+  for( i in seq_along(v)){
+    if(v[i]==0){
+
+      # market value recalculated from ytm
+      p <- ytm2price(tenor,ytm, freq)
+
+      # cash flows from observed tenors and ytms
+      Cmat <- cash_flow_mat(tenor,ytm,freq)
+
+      # durations which produce a cash flow
+      u <- as.numeric(rownames(Cmat))
+
+      # discount factor with ufr
+      d <- exp(-ufr*u)
+
+      # ufr-discounted cash flows
+      Q <- diag(as.vector(d))%*%Cmat
+
+      # solution for auxiliary vector b from equation
+      b <- solve(t(Q)%*%wilsonH(u,u,a)%*%Q)%*%(p-colSums(Q))
+
+      intensity[i] <- ufr-a*colSums(Q%*%b)+a*exp(-a*u)%*%Q%*%b
+
+
+    } else{
+       Pv <- discount_pricing(v[i],tenor,ytm,a,ufr,freq)
+       intensity[i] <- -log(Pv)/v[i]
+
+    }
+  }
+
+  res <- cont2disc(intensity,convert="discrete")
+  names(res) <- format(v,digits=2)
+  res
+}
+
+
+#' Calculate Forward Rates from Spot Rates
+#'
+#' Given a vector of spot rates, this function calculates the corresponding forward rates.
+#'
+#' @param spot_rates A numeric vector of spot rates.
+#' @return A numeric vector of forward rates.
+#' @export
+compute_forwards <- function(spot_rates){
+  pv <- (1+spot_rates)^(seq_along(spot_rates)-1)
+  forward_rates <- `[`(pv/lag(pv)-1,-1)
+  if(!is.null(names(spot_rates))) names(forward_rates) <- names(spot_rates[-length(spot_rates)])
+  forward_rates
+}
 

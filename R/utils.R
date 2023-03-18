@@ -106,3 +106,8 @@ cont2disc <- function(int,convert=c("discrete","continuous")) {
 }
 
 
+spot2forward <- function(spot_rates,durations){
+
+
+
+}
